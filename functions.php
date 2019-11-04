@@ -14,6 +14,8 @@ function init() {
         add_action ( 'wp', __NAMESPACE__ . '\\wp' );
         add_filter ( 'wp_headers', __NAMESPACE__ . '\\wp_headers' );
     }
+    register_nav_menu ( 'ichabod', __( 'Ichabod' ) );
+    add_action ( 'rest_api_init', __NAMESPACE__ . '\\rest_api_init' );
 }
 
 function wp() {
@@ -68,4 +70,25 @@ function wp() {
 function wp_headers ( $headers ) {
     $headers['Access-Control-Allow-Origin'] = ICHABOD_URL;
     return $headers;
+}
+
+function rest_api_init () {
+    register_rest_route ( 'ichabod', 'navigation', array (
+        'methods' => 'GET',
+        'callback' => __NAMESPACE__ . '\\rest_api_ichabod_navigation',
+    ) );
+}
+
+function rest_api_ichabod_navigation () {
+    $nav = array ();
+    $items = wp_get_nav_menu_items ( 'Ichabod' );
+    foreach ( $items as $item ) {
+        $permalink = str_replace ( get_home_url(), ICHABOD_URL, $item->url );
+        $nav[] = array (
+            'title' => $item->title,
+            'permalink' => $permalink,
+            'target' => $item->target,
+        );
+    }
+    wp_send_json ( $nav );
 }
