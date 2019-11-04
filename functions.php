@@ -26,7 +26,8 @@ function wp() {
      */
     if ( ! empty ( $wp_query->posts ) ) {
         foreach ( $wp_query->posts as $post ) {
-            $post->permalink = get_the_permalink ( $post->ID );
+            $permalink = get_the_permalink ( $post->ID );
+            $post->permalink = str_replace ( get_home_url(), ICHABOD_URL, $permalink );
         }
     }
     /**
